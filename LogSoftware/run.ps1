@@ -10,6 +10,9 @@ Write-Host "PowerShell HTTP trigger function processed a request."
 $StorageAccountName = $env:StorageAccountName
 $StorageAccountKey = $env:StorageAccountKey
 
+#Grabbing the Table Name from ENV
+$AzureTableName = $env:AzureTableName
+
 #Gathering the object from the request and converting it to a powershell object
 $obj = $Request.Body | ConvertFrom-Json
 
@@ -97,7 +100,7 @@ function New-PostToTable {
 }
 
 #Running the function
-New-PostToTable -StorageAccountName $StorageAccountName -StorageAccountKey $StorageAccountKey -StorageTableName "logsoftwaretest" -PartitionKey "PartitionKey1" -StorageTableProperties $Hash
+New-PostToTable -StorageAccountName $StorageAccountName -StorageAccountKey $StorageAccountKey -StorageTableName $AzureTableName -PartitionKey "PartitionKey1" -StorageTableProperties $Hash
 
 # Associate values to output bindings by calling 'Push-OutputBinding'.
 Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
