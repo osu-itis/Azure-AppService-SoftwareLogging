@@ -6,15 +6,21 @@ param($Request, $TriggerMetadata)
 # Write to the Azure Functions log stream.
 Write-Host "PowerShell HTTP trigger function processed a request."
 
+#Gathering the object from the request and converting it to a powershell object
+$obj = $Request.Body | ConvertFrom-Json
+
+# Associate values to output bindings by calling 'Push-OutputBinding'.
+Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
+        StatusCode = [HttpStatusCode]::OK
+        Body       = $($obj | ConvertTo-Json)
+    })
+
 #Grabbing needed account and key from the ENV
 $StorageAccountName = $env:StorageAccountName
 $StorageAccountKey = $env:StorageAccountKey
 
 #Grabbing the Table Name from ENV
 $AzureTableName = $env:AzureTableName
-
-#Gathering the object from the request and converting it to a powershell object
-$obj = $Request.Body | ConvertFrom-Json
 
 #Convert the PSCustomObject back to a hashtable & make a generic hash:
 $Hash = [ordered]@{}
@@ -101,9 +107,3 @@ function New-PostToTable {
 
 #Running the function
 New-PostToTable -StorageAccountName $StorageAccountName -StorageAccountKey $StorageAccountKey -StorageTableName $AzureTableName -PartitionKey "PartitionKey1" -StorageTableProperties $Hash
-
-# Associate values to output bindings by calling 'Push-OutputBinding'.
-Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
-        StatusCode = [HttpStatusCode]::OK
-        Body       = $($obj | ConvertTo-Json)
-    })
