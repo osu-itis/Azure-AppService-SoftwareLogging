@@ -5,7 +5,8 @@
     ----------------------------------------------------------------------------------------
     ----------------------------------------------------------------------------------------
 #>
-$URI = "https://logsoftwaretest.azurewebsites.net/api/LogSoftware"
+$URI = "https://softwareloggingapp.azurewebsites.net/api/SoftwareLoggingFunction"
+#$URI = "https://logsoftwaretest.azurewebsites.net/api/LogSoftware"
 #$URI = "http://localhost:7071/api/LogSoftware"
 $SoftwareVersion = "SoftwareVersion"
 $SoftwareName = "SoftwareName"
