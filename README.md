@@ -1,4 +1,8 @@
-# NOTES
+# Synopsis
+
+Software logging saved to Azure table storage
+
+## Installation Checklist
 
 - Generate Resource group (which all resources will be under)
 - Create App Registration
