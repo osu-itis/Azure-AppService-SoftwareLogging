@@ -22,3 +22,6 @@ Software logging saved to Azure table storage
     - Set function.json to "anonymous" rather than function
     - Copy code to run.ps1
     - Copy code to requirements.psd1
+  - Custom Domains
+    - Enable HTTPS Only
+    
