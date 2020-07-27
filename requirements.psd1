@@ -2,9 +2,9 @@
 # See https://aka.ms/functionsmanageddependency for additional information.
 #
 @{
-    'Az' = '4.*'
-    'Az.Accounts' = '1.*'
-    'Az.Storage' = '2.*'
+    'Az'           = '4.*'
+    'Az.Accounts'  = '1.*'
+    'Az.Storage'   = '2.*'
     'Az.Resources' = '1.*'
-    'AzTable' = '2.*'
+    'AzTable'      = '2.*'
 }

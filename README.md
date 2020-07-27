@@ -24,4 +24,3 @@ Software logging saved to Azure table storage
     - Copy code to requirements.psd1
   - Custom Domains
     - Enable HTTPS Only
-    

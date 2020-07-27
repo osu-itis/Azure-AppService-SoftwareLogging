@@ -6,7 +6,7 @@
     "StorageAccountName": "",
     "StorageAccountKey": "",
     "ServicePrincipal": "",
-    "ServicePrincipalSecret": ""
+    "ServicePrincipalSecret": "",
     "AzureTableName": ""
   }
 }
