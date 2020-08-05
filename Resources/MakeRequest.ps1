@@ -1,23 +1,12 @@
-<#
-    ----------------------------------------------------------------------------------------
-    ----------------------------------------------------------------------------------------
-    Manually update these values based off of what software package these are running off of
-    ----------------------------------------------------------------------------------------
-    ----------------------------------------------------------------------------------------
-#>
-$URI = "https://softwareloggingapp.azurewebsites.net/api/SoftwareLoggingFunction"
-#$URI = "https://logsoftwaretest.azurewebsites.net/api/LogSoftware"
-#$URI = "http://localhost:7071/api/LogSoftware"
-$SoftwareVersion = "SoftwareVersion"
-$SoftwareName = "SoftwareName"
-<#
-    -------------------------------
-    -------------------------------
-    Code to be ran below this point
-    -------------------------------
-    -------------------------------
-#>
+param (
+    $SoftwareVersion = "SoftwareVersion",
+    $SoftwareName = "SoftwareName"
+    )
 
+# Hardcoded values:
+    $URI = "https://softwareloggingapp.azurewebsites.net/api/SoftwareLoggingFunction"
+    #$URI = "https://logsoftwaretest.azurewebsites.net/api/LogSoftware"
+    #$URI = "http://localhost:7071/api/LogSoftware"
 function Send-SoftwarePOSTRequest {
     <#
     .SYNOPSIS
