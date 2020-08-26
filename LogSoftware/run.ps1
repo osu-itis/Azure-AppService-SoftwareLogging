@@ -6,7 +6,7 @@ param($Request, $TriggerMetadata)
 # Write to the Azure Functions log stream.
 Write-Host "PowerShell HTTP trigger function processed a request."
 
-#Gathering the object from the request and converting it to a powershell object
+# Gathering the object from the request and converting it to a powershell object
 $obj = $Request.Body | ConvertFrom-Json
 
 # Associate values to output bindings by calling 'Push-OutputBinding'.
@@ -15,24 +15,24 @@ Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
         Body       = $($obj | ConvertTo-Json)
     })
 
-#Grabbing needed account and key from the ENV
+# Grabbing needed account and key from the ENV
 $StorageAccountName = $env:StorageAccountName
 $StorageAccountKey = $env:StorageAccountKey
 
-#Grabbing the Table Name from ENV
+# Grabbing the Table Name from ENV
 $AzureTableName = $env:AzureTableName
 
-#Convert the PSCustomObject back to a hashtable & make a generic hash:
+# Convert the PSCustomObject back to a hashtable & make a generic hash:
 $Hash = [ordered]@{}
 
-#Grab all the properties and for each of them add the name and value to the hash
+# Grab all the properties and for each of them add the name and value to the hash
 $obj.psobject.properties | ForEach-Object { $Hash[$_.Name] = $_.Value }
 
-#Connecting to an AD service account (which auto-loads the "AzStorageTable" cmdlets, this is required to use this commands)
+# Connecting to an AD service account (which auto-loads the "AzStorageTable" cmdlets, this is required to use these commands)
 $ServicePrincipalAccount = New-Object System.Management.Automation.PSCredential ("$ENV:ServicePrincipal", $(ConvertTo-SecureString "$($ENV:ServicePrincipalSecret)" -AsPlainText -Force))
 Connect-AzAccount -Tenant "ce6d05e1-3c5e-4d62-87a8-4c4a2713c113" -Credential $ServicePrincipalAccount -ServicePrincipal
 
-#Now that everything is loaded, we can prepare the function
+# Now that everything is loaded, we can prepare the function
 function New-PostToTable {
     <#
     .SYNOPSIS
@@ -69,14 +69,14 @@ function New-PostToTable {
     )
 
     begin {
-        # #Import the needed modules
+        # Import the needed modules
         # Import-Module Az.Accounts
         # Import-Module Az.Storage
 
-        #Gather the AZ Storage Context which provides information about the account to be used
+        # Gather the AZ Storage Context which provides information about the account to be used
         $CTX = New-AzStorageContext -StorageAccountName $StorageAccountName -StorageAccountKey $StorageAccountKey
 
-        #Using the context, get the storage table and gather the "CloudTable" properties
+        # Using the context, get the storage table and gather the "CloudTable" properties
         $CloudTable = (Get-AzStorageTable -Name $StorageTableName -Context $CTX.Context).CloudTable
     }
 
@@ -88,7 +88,7 @@ function New-PostToTable {
         #>
         $rowkey = ([guid]::NewGuid().tostring())
 
-        #Generate an object that contains all of the important data related to the Row that is about to be added to the table
+        # Generate an object that contains all of the important data related to the Row that is about to be added to the table
         $RowToAdd = @{
             Table        = $cloudTable
             PartitionKey = $PartitionKey
@@ -96,14 +96,14 @@ function New-PostToTable {
             Property     = $StorageTableProperties
         }
 
-        #Using Splatting, add the table row with the included properties
+        # Using Splatting, add the table row with the included properties
         Add-AzTableRow @RowToAdd
     }
 
     end {
-        #No end steps
+        # No end steps
     }
 }
 
-#Running the function
+# Running the function
 New-PostToTable -StorageAccountName $StorageAccountName -StorageAccountKey $StorageAccountKey -StorageTableName $AzureTableName -PartitionKey "PartitionKey1" -StorageTableProperties $Hash

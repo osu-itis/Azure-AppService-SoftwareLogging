@@ -5,8 +5,6 @@ param (
 
 # Hardcoded values:
     $URI = "https://softwareloggingapp.azurewebsites.net/api/SoftwareLoggingFunction"
-    #$URI = "https://logsoftwaretest.azurewebsites.net/api/LogSoftware"
-    #$URI = "http://localhost:7071/api/LogSoftware"
 function Send-SoftwarePOSTRequest {
     <#
     .SYNOPSIS
@@ -36,27 +34,27 @@ function Send-SoftwarePOSTRequest {
         $SoftwareVersion,
         $SoftwareName
     )
-    #Gather all of the computer info we need
+    # Gather all of the computer info we need
     $ComputerInfo = Get-ComputerInfo
 
-    #Loading the needed functions...
+    # Loading the needed functions...
     function Set-OutputFormat {
         [CmdletBinding()]
         param (
             [Parameter()]
             $ObjectInput
         )
-        #If the object is empty, return a blank string
+        # If the object is empty, return a blank string
         if ([string]::IsNullOrEmpty($ObjectInput)) { [string]$output = "" }
-        #Otherwise, just output the object as a string
+        # Otherwise, just output the object as a string
         Else { [string]$output = $ObjectInput }
-        #Return the Output
+        # Return the Output
         return $output
     }
 
-    #Setting a custom object for data formatting
+    # Setting a custom object for data formatting
     $obj = [PSCustomObject]@{
-        #Be aware that the incorrect spelling of "seral" is intentional, that is the way that the attribute is spelled from "get-ComputerInfo"
+        # Be aware that the incorrect spelling of "seral" is intentional, that is the way that the attribute is spelled from "get-ComputerInfo"
         BiosSerial      = Set-OutputFormat -ObjectInput $ComputerInfo.BiosSeralNumber
         ComputerModel   = Set-OutputFormat -ObjectInput $ComputerInfo.CsSystemFamily
         ComputerName    = Set-OutputFormat -ObjectInput $ComputerInfo.csname
@@ -67,15 +65,15 @@ function Send-SoftwarePOSTRequest {
         WindowsVersion  = Set-OutputFormat -ObjectInput $ComputerInfo.WindowsProductName
     }
 
-    #Convert the PSCustomObject back to a hashtable & make a generic hash:
+    # Convert the PSCustomObject back to a hashtable & make a generic hash:
     $Hash = [ordered]@{}
-    #Grab all the properties and for each of them add the name and value to the hash
+    # Grab all the properties and for each of them add the name and value to the hash
     $obj.psobject.properties | ForEach-Object { $Hash[$_.Name] = $_.Value }
 
-    #Convert it to json
+    # Convert it to json
     $JSON = $Hash | ConvertTo-Json
 
-    #Make the webrequest:
+    # Make the webrequest:
     Invoke-WebRequest -Uri $URI -Body $JSON -Method Post
 }
 
