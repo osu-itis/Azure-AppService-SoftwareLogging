@@ -1,10 +1,9 @@
 param (
-    $SoftwareVersion = "SoftwareVersion",
-    $SoftwareName = "SoftwareName"
-    )
+    [parameter(Mandatory = $true)]  [string]$SoftwareName = "SoftwareName",
+    [parameter(Mandatory = $false)] [string]$SoftwareVersion = "SoftwareVersion",
+    [parameter(Mandatory = $true)]  [string]$URI
+)
 
-# Hardcoded values:
-    $URI = "https://softwareloggingapp.azurewebsites.net/api/SoftwareLoggingFunction"
 function Send-SoftwarePOSTRequest {
     <#
     .SYNOPSIS
