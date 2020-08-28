@@ -16,7 +16,7 @@ Software logging saved to Azure table storage
   - Configure:
     - Application Settings
       - Add storage account name and key (so they are env variables to the script)
-      - Add service principal and secret (AKA the app registration's client ID and secret)  (if needed to connect and azure and load the aztablerow commands)
+      - Add service principal and secret (AKA the app registration's client ID and secret)  (if needed to connect and azure and load the `aztablerow` commands)
   - New Function
     - Remove "get" from the function.json
     - Set function.json to "anonymous" rather than function
