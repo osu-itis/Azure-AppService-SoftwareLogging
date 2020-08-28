@@ -2,7 +2,7 @@
 
 Software logging saved to Azure table storage
 
-## Installation Checklist
+## Azure Function App Installation Checklist
 
 - Generate Resource group (which all resources will be under)
 - Create App Registration
@@ -24,3 +24,5 @@ Software logging saved to Azure table storage
     - Copy code to requirements.psd1
   - Custom Domains
     - Enable HTTPS Only
+
+>NOTE: Review the `.\Resources` folder for more information regarding configuring the power BI query or the code to add to an installation to enable logging.
