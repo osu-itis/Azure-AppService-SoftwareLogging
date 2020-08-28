@@ -6,104 +6,65 @@ param($Request, $TriggerMetadata)
 # Write to the Azure Functions log stream.
 Write-Host "PowerShell HTTP trigger function processed a request."
 
-# Gathering the object from the request and converting it to a powershell object
-$obj = $Request.Body | ConvertFrom-Json
-
-# Associate values to output bindings by calling 'Push-OutputBinding'.
-Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
-        StatusCode = [HttpStatusCode]::OK
-        Body       = $($obj | ConvertTo-Json)
-    })
-
-# Grabbing needed account and key from the ENV
-$StorageAccountName = $env:StorageAccountName
-$StorageAccountKey = $env:StorageAccountKey
-
-# Grabbing the Table Name from ENV
-$AzureTableName = $env:AzureTableName
-
-# Convert the PSCustomObject back to a hashtable & make a generic hash:
-$Hash = [ordered]@{}
-
-# Grab all the properties and for each of them add the name and value to the hash
-$obj.psobject.properties | ForEach-Object { $Hash[$_.Name] = $_.Value }
-
-# Connecting to an AD service account (which auto-loads the "AzStorageTable" cmdlets, this is required to use these commands)
-$ServicePrincipalAccount = New-Object System.Management.Automation.PSCredential ("$ENV:ServicePrincipal", $(ConvertTo-SecureString "$($ENV:ServicePrincipalSecret)" -AsPlainText -Force))
-Connect-AzAccount -Tenant "ce6d05e1-3c5e-4d62-87a8-4c4a2713c113" -Credential $ServicePrincipalAccount -ServicePrincipal
-
-# Now that everything is loaded, we can prepare the function
-function New-PostToTable {
-    <#
-    .SYNOPSIS
-    Posts data to Azure Storage Table
-    
-    .DESCRIPTION
-    Posts data to Azure Storage Table
-    
-    .PARAMETER StorageAccountName
-    The account name for the AZ Storage Table
-    
-    .PARAMETER StorageAccountKey
-    The key for the AZ Storage Table
-    
-    .PARAMETER StorageTableName
-    The Name of the Azure Storage Table
-    
-    .PARAMETER StorageTableProperties
-    All Properties to be submitted (In hashtable format)
-    
-    .PARAMETER PartitionKey
-    The Specific Partition Key for the dataset to be added to the Table
-    
-    .EXAMPLE
-    New-PostToTable -StorageAccountName "TableAccount" -StorageAccountKey "<SOMEKEY==>"" -StorageTableName "tablename" -PartitionKey "PartitionKey1" -StorageTableProperties @{"Name"="Cool Dude";Status="Awesome"}
-    #>
-    [CmdletBinding()]
-    param (
-        [parameter(Mandatory = $true)]$StorageAccountName,
-        [parameter(Mandatory = $true)]$StorageAccountKey,
-        [parameter(Mandatory = $true)]$StorageTableName,
-        [parameter(Mandatory = $true)]$StorageTableProperties,
-        [parameter(Mandatory = $true)]$PartitionKey
+#Creating an object that contains all of the needed information
+$ProcessingObject = [hashtable]@{   
+    # Gathering the Tenant ID
+    Tenant                     = $env:TenantID
+    # Gathering the credentials for the Service Principal account
+    ServicePrincipalCredential = New-Object System.Management.Automation.PSCredential ("$ENV:ServicePrincipal", $(ConvertTo-SecureString "$($ENV:ServicePrincipalSecret)" -AsPlainText -Force))
+    # Gathering all of the needed storage settings
+    StorageAccountName         = $env:StorageAccountName
+    StorageAccountKey          = $env:StorageAccountKey
+    StorageTableName           = $env:AzureTableName
+    PartitionKey               = $env:PartitionKey
+    # Gathering the body of the request and converting it from JSON to a PSCustomObject
+    StorageTableProperties     = $(
+        $obj = $Request.Body | ConvertFrom-Json
+        $Hash = [ordered]@{}
+        $obj.psobject.properties | ForEach-Object { $Hash[$_.Name] = $_.Value }
+        $Hash
     )
+}
 
-    begin {
-        # Import the needed modules
-        # Import-Module Az.Accounts
-        # Import-Module Az.Storage
+# Load the functions
+. ".\LogSoftware\New-PostToTable.ps1"
+. ".\LogSoftware\GenerateReponseObject.ps1"
 
-        # Gather the AZ Storage Context which provides information about the account to be used
-        $CTX = New-AzStorageContext -StorageAccountName $StorageAccountName -StorageAccountKey $StorageAccountKey
+# Attempt to post to the table and collect the results
+try {
+    $temp = @{Results = $( New-PostToTable @ProcessingObject ) }
+}
+catch {
+    $temp = @{Results = $null }    
+}
 
-        # Using the context, get the storage table and gather the "CloudTable" properties
-        $CloudTable = (Get-AzStorageTable -Name $StorageTableName -Context $CTX.Context).CloudTable
-    }
+# Add the results to the Main Object
+$ProcessingObject += $temp
 
-    process {
-        <#
-            Generate a randomized GUID for the RowKey because we do not have a unique value to use (user & computer may have more than one different install, so each entry must be logged).
-            Additionally we dont want to query the Data Table every time to calulate the number of rows as this will reduce the speed of the code.
-            In the future if actual individual single use licence codes are used, we could use that as the RowKey.
-        #>
-        $rowkey = ([guid]::NewGuid().tostring())
-
-        # Generate an object that contains all of the important data related to the Row that is about to be added to the table
-        $RowToAdd = @{
-            Table        = $cloudTable
-            PartitionKey = $PartitionKey
-            RowKey       = $rowkey
-            Property     = $StorageTableProperties
+# Determine the final status of the function
+switch ($ProcessingObject) {
+    { $_.Results.httpstatuscode -eq 204 } {
+        $status = @{
+            HttpStatusCode = [string]"OK"
+            Body = [string]"Successfully Logged Install"
         }
-
-        # Using Splatting, add the table row with the included properties
-        Add-AzTableRow @RowToAdd
     }
-
-    end {
-        # No end steps
+    { [string]::IsNullOrEmpty($_.Results) } {
+        $status = @{
+            HttpStatusCode = [string]"BadRequest"
+            Body = [string]"Failed to process request"
+        }
+    }
+    Default {
+        $status = @{
+            HttpStatusCode = [string]"InternalServerError"
+        }
     }
 }
 
-# Running the function
-New-PostToTable -StorageAccountName $StorageAccountName -StorageAccountKey $StorageAccountKey -StorageTableName $AzureTableName -PartitionKey "PartitionKey1" -StorageTableProperties $Hash
+# Associate values to output bindings by calling 'Push-OutputBinding'.
+GenerateReponseObject @Status
+
+$ProcessingObject += @{Status = $status}
+
+Export-Clixml -InputObject $ProcessingObject -Force .\ProcessingObject.cli.xml
