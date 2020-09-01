@@ -11,6 +11,13 @@
       "type": "http",
       "direction": "out",
       "name": "Response"
+    },
+    {
+      "type": "table",
+      "name": "outputTable",
+      "tableName": "SoftwareLoggingTable",
+      "connection": "AzureWebJobsStorage",
+      "direction": "out"
     }
   ]
 }
