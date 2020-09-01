@@ -76,12 +76,5 @@ function Send-SoftwarePOSTRequest {
     Invoke-WebRequest -Uri $URI -Body $JSON -Method Post
 }
 
-<#
-    --------------------
-    --------------------
-    Running the function
-    --------------------
-    --------------------
-#>
-
+# Running the function
 Send-SoftwarePOSTRequest -URI $URI -SoftwareVersion $SoftwareVersion -SoftwareName $SoftwareName

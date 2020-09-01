@@ -1,6 +1,12 @@
-# Synopsis
+# Azure Software Licence Logging
 
 Software logging saved to Azure table storage
+
+- [Azure Software Licence Logging](#azure-software-licence-logging)
+  - [Azure Function App Installation Checklist](#azure-function-app-installation-checklist)
+  - [Example REST Post Request](#example-rest-post-request)
+  - [Application Logging On Install](#application-logging-on-install)
+  - [Power BI Setup](#power-bi-setup)
 
 ## Azure Function App Installation Checklist
 
@@ -25,4 +31,30 @@ Software logging saved to Azure table storage
   - Custom Domains
     - Enable HTTPS Only
 
->NOTE: Review the `.\Resources` folder for more information regarding configuring the power BI query or the code to add to an installation to enable logging.
+## Example REST Post Request
+
+```HTTP REST
+POST /api/LogSoftware
+HOST: https://APPNAME.azurewebsites.net
+Content-Type: application/json
+
+{
+    "BiosSerial":  "",
+    "ComputerModel":  "",
+    "ComputerName":  "",
+    "SoftwareName":  "",
+    "SoftwareVersion":  "",
+    "UserName":  "",
+    "WindowsBuild":  "",
+    "WindowsVersion":  ""
+}
+
+```
+
+## Application Logging On Install
+
+- [How to set up application logging on software install](Resources\Application_Logging_on_Install\README.md)
+
+## Power BI Setup
+
+- [How to setup the Power BI Queries](Resources\Power_BI_Setup\README.md)
