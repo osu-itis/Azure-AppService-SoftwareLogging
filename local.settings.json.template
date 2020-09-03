@@ -8,7 +8,6 @@
     "ServicePrincipal": "",
     "ServicePrincipalSecret": "",
     "AzureTableName": "",
-    "TenantID": "",
-    "PartitionKey": ""
+    "TenantID": ""
   }
 }

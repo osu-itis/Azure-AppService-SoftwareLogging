@@ -8,7 +8,6 @@ Write-Host "PowerShell HTTP trigger function processed a request."
 
 # Making sure that all of the needed variables are available
 if ([string]::IsNullOrEmpty($env:AzureWebJobsStorage)) { Throw 'Could not find $env:AzureWebJobsStorage' }
-if ([string]::IsNullOrEmpty($env:PartitionKey)) { Throw 'Could not find $env:PartitionKey' }
 
 # Creating an object that contains all of the needed information
 $ProcessingObject = [hashtable]@{
@@ -18,7 +17,7 @@ $ProcessingObject = [hashtable]@{
         $Hash = [ordered]@{}
         $obj.psobject.properties | ForEach-Object { $Hash[$_.Name] = $_.Value }
         # Adding the needed partition key and row key
-        $Hash.Add("PartitionKey",$env:PartitionKey)
+        $Hash.Add("PartitionKey",$(get-date -Format yyyy))
         $Hash.Add("RowKey", $(new-guid | Select-Object -ExpandProperty guid))
         $Hash
     )
