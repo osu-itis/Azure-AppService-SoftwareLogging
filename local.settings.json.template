@@ -2,12 +2,6 @@
   "IsEncrypted": false,
   "Values": {
     "AzureWebJobsStorage": "",
-    "FUNCTIONS_WORKER_RUNTIME": "powershell",
-    "StorageAccountName": "",
-    "StorageAccountKey": "",
-    "ServicePrincipal": "",
-    "ServicePrincipalSecret": "",
-    "AzureTableName": "",
-    "TenantID": ""
+    "FUNCTIONS_WORKER_RUNTIME": "powershell"
   }
 }
