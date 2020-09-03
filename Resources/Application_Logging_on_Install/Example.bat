@@ -1,0 +1,1 @@
+Powershell.exe -ExecutionPolicy ByPass -File .\MakeRequest.ps1 -SoftwareName "SOFTWARENAME" -SoftwareVersion "SOFTWAREVERSION" -URI "https://AZUREFUNCTIONNAME.azurewebsites.net/api/LogSoftware"

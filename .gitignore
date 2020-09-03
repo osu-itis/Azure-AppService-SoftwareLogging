@@ -1,6 +1,11 @@
+# Dev stuff
 .vscode
 # Azure Functions artifacts
 bin
 obj
 appsettings.json
 local.settings.json
+*.xml
+NOTES/
+# Power BI report Files
+*.pbix
